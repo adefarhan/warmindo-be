@@ -1,8 +1,8 @@
-package user
+package customer
 
 import "time"
 
-type User struct {
+type Customer struct {
 	ID          string     `json:"id"`
 	Name        string     `json:"name"`
 	PhoneNumber string     `json:"phoneNumber"`

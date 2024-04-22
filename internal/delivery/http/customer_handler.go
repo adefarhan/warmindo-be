@@ -4,22 +4,22 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/adefarhan/warmindo-be/internal/entity/user"
+	"github.com/adefarhan/warmindo-be/internal/entity/customer"
 	"github.com/adefarhan/warmindo-be/internal/usecase"
 	"github.com/adefarhan/warmindo-be/response"
 	"github.com/gin-gonic/gin"
 )
 
-type UserHandler struct {
-	useCase *usecase.UserUseCase
+type CustomerHandler struct {
+	useCase *usecase.CustomerUseCase
 }
 
-func NewUserHandler(useCase *usecase.UserUseCase) *UserHandler {
-	return &UserHandler{useCase: useCase}
+func NewCustomerHandler(useCase *usecase.CustomerUseCase) *CustomerHandler {
+	return &CustomerHandler{useCase: useCase}
 }
 
-func (u *UserHandler) CreateUser(c *gin.Context) {
-	var request user.User
+func (u *CustomerHandler) CreateCustomer(c *gin.Context) {
+	var request customer.Customer
 
 	err := c.ShouldBindJSON(&request)
 	if err != nil {
@@ -29,39 +29,39 @@ func (u *UserHandler) CreateUser(c *gin.Context) {
 		return
 	}
 
-	user, err := u.useCase.CreateUser(request)
+	customer, err := u.useCase.CreateCustomer(request)
 	if err != nil {
-		log.Printf("Failed to create user: %s", err)
+		log.Printf("Failed to create customer: %s", err)
 		errorResponse := response.NewErrorResponse(http.StatusInternalServerError, err.Error())
 		c.JSON(http.StatusInternalServerError, errorResponse)
 		return
 	}
 
-	successResponse := response.NewSuccessResponse(http.StatusCreated, user)
+	successResponse := response.NewSuccessResponse(http.StatusCreated, customer)
 
 	c.JSON(http.StatusCreated, successResponse)
 }
 
-func (u *UserHandler) GetUsers(c *gin.Context) {
-	users, err := u.useCase.GetUsers()
+func (u *CustomerHandler) GetCustomers(c *gin.Context) {
+	customers, err := u.useCase.GetCustomers()
 	if err != nil {
-		log.Printf("Failed to get users: %s", err)
+		log.Printf("Failed to get customers: %s", err)
 		errorResponse := response.NewErrorResponse(http.StatusInternalServerError, err.Error())
 		c.JSON(http.StatusInternalServerError, errorResponse)
 		return
 	}
 
-	successResponse := response.NewSuccessResponse(http.StatusOK, users)
+	successResponse := response.NewSuccessResponse(http.StatusOK, customers)
 
 	c.JSON(http.StatusOK, successResponse)
 }
 
-func (u *UserHandler) GetUser(c *gin.Context) {
-	userId := c.Param("userId")
+func (u *CustomerHandler) GetCustomer(c *gin.Context) {
+	customerId := c.Param("customerId")
 
-	user, err := u.useCase.GetUser(userId)
+	customer, err := u.useCase.GetCustomer(customerId)
 	if err != nil {
-		log.Printf("Failed to create user: %s", err)
+		log.Printf("Failed to get customer: %s", err)
 		errorResponse := response.NewErrorResponse(http.StatusInternalServerError, err.Error())
 		c.JSON(http.StatusInternalServerError, errorResponse)
 		return
@@ -69,21 +69,21 @@ func (u *UserHandler) GetUser(c *gin.Context) {
 
 	var successResponse response.Response
 
-	if user.ID == "" {
+	if customer.ID == "" {
 		successResponse = response.NewSuccessResponse(http.StatusOK, nil)
 		c.JSON(http.StatusOK, successResponse)
 		return
 	}
 
-	successResponse = response.NewSuccessResponse(http.StatusOK, user)
+	successResponse = response.NewSuccessResponse(http.StatusOK, customer)
 
 	c.JSON(http.StatusOK, successResponse)
 }
 
-func (u *UserHandler) UpdateUser(c *gin.Context) {
-	userId := c.Param("userId")
+func (u *CustomerHandler) UpdateCustomer(c *gin.Context) {
+	customerId := c.Param("customerId")
 
-	var request user.User
+	var request customer.Customer
 
 	err := c.ShouldBindJSON(&request)
 	if err != nil {
@@ -93,10 +93,10 @@ func (u *UserHandler) UpdateUser(c *gin.Context) {
 		return
 	}
 
-	user, err := u.useCase.UpdateUser(userId, request)
+	customer, err := u.useCase.UpdateCustomer(customerId, request)
 	if err != nil {
-		if err.Error() == "user not found" {
-			log.Printf("User with id %s not found", userId)
+		if err.Error() == "customer not found" {
+			log.Printf("Customer with id %s not found", customerId)
 			errorResponse := response.NewErrorResponse(http.StatusNotFound, err.Error())
 			c.JSON(http.StatusNotFound, errorResponse)
 			return
@@ -108,18 +108,18 @@ func (u *UserHandler) UpdateUser(c *gin.Context) {
 		return
 	}
 
-	successResponse := response.NewSuccessResponse(http.StatusOK, user)
+	successResponse := response.NewSuccessResponse(http.StatusOK, customer)
 
 	c.JSON(http.StatusOK, successResponse)
 }
 
-func (u *UserHandler) DeleteUser(c *gin.Context) {
-	userId := c.Param("userId")
+func (u *CustomerHandler) DeleteCustomer(c *gin.Context) {
+	customerId := c.Param("customerId")
 
-	user, err := u.useCase.DeletUser(userId)
+	customer, err := u.useCase.DeletCustomer(customerId)
 	if err != nil {
-		if err.Error() == "user not found" {
-			log.Printf("User with id %s not found", userId)
+		if err.Error() == "customer not found" {
+			log.Printf("Customer with id %s not found", customerId)
 			errorResponse := response.NewErrorResponse(http.StatusNotFound, err.Error())
 			c.JSON(http.StatusNotFound, errorResponse)
 			return
@@ -131,7 +131,7 @@ func (u *UserHandler) DeleteUser(c *gin.Context) {
 		return
 	}
 
-	successResponse := response.NewSuccessResponse(http.StatusOK, user)
+	successResponse := response.NewSuccessResponse(http.StatusOK, customer)
 
 	c.JSON(http.StatusOK, successResponse)
 }

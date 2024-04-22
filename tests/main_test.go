@@ -4,10 +4,11 @@ import (
 	"log"
 
 	"github.com/adefarhan/warmindo-be/internal/delivery/http"
+	"github.com/adefarhan/warmindo-be/internal/entity/customer"
 	"github.com/adefarhan/warmindo-be/internal/entity/product"
-	"github.com/adefarhan/warmindo-be/internal/entity/user"
 	"github.com/adefarhan/warmindo-be/internal/usecase"
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -17,6 +18,11 @@ var (
 )
 
 func SetupTest() {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+
 	db := setUpTestDB()
 
 	gin.SetMode(gin.ReleaseMode)
@@ -28,9 +34,9 @@ func SetupTest() {
 	productUseCase := usecase.NewProductUseCase(productRepo)
 	productHandler := http.NewProductHandler(productUseCase)
 
-	userRepo := user.NewUserRepository(db)
-	userUseCase := usecase.NewUserUseCase(userRepo)
-	userHandler := http.NewUserHandler(userUseCase)
+	customerRepo := customer.NewCustomerRepository(db)
+	customerUseCase := usecase.NewCustomerUseCase(customerRepo)
+	customerHandler := http.NewCustomerHandler(customerUseCase)
 
 	// Routes
 	Router.GET("/products", productHandler.GetProducts)
@@ -39,11 +45,11 @@ func SetupTest() {
 	Router.PUT("/products/:productId", productHandler.UpdateProduct)
 	Router.DELETE("/products/:productId", productHandler.DeleteProduct)
 
-	Router.POST("/users", userHandler.CreateUser)
-	Router.GET("/users", userHandler.GetUsers)
-	Router.GET("users/:userId", userHandler.GetUser)
-	Router.PUT("/users/:userId", userHandler.UpdateUser)
-	Router.DELETE("/users/:userId", userHandler.DeleteUser)
+	Router.POST("/customers", customerHandler.CreateCustomer)
+	Router.GET("/customers", customerHandler.GetCustomers)
+	Router.GET("customers/:customerId", customerHandler.GetCustomer)
+	Router.PUT("/customers/:customerId", customerHandler.UpdateCustomer)
+	Router.DELETE("/customers/:customerId", customerHandler.DeleteCustomer)
 }
 
 func setUpTestDB() *gorm.DB {
@@ -55,7 +61,7 @@ func setUpTestDB() *gorm.DB {
 	}
 
 	// Migrate model ke database
-	db.AutoMigrate(&product.Product{}, &user.User{})
+	db.AutoMigrate(&product.Product{}, &customer.Customer{})
 
 	return db
 }
