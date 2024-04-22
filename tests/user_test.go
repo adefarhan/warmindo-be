@@ -7,24 +7,24 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/adefarhan/warmindo-be/internal/entity/product"
+	"github.com/adefarhan/warmindo-be/internal/entity/user"
 	"github.com/stretchr/testify/require"
 )
 
-var productId string
+var userId string
 
-func TestCreateProducts_Success(t *testing.T) {
+func TestCreateUsers_Success(t *testing.T) {
 	SetupTest()
 
 	request := []byte(`{
-		"name": "Burjo",
-		"price": 5000,
-		"stock": 50
+		"name": "Ade Farhan",
+		"phoneNumber": "9218412423",
+		"address": "jakarta"
 	  }`)
 
-	req, err := http.NewRequest("POST", "/products", bytes.NewBuffer(request))
+	req, err := http.NewRequest("POST", "/users", bytes.NewBuffer(request))
 	if err != nil {
-		t.Fatal("Failed test create product")
+		t.Fatal("Failed test create user")
 	}
 
 	req.Header.Set("Content-Type", "application/json")
@@ -36,9 +36,9 @@ func TestCreateProducts_Success(t *testing.T) {
 	require.Equal(t, http.StatusCreated, resp.Code)
 
 	var response struct {
-		Status string          `json:"status"`
-		Code   int             `json:"code"`
-		Data   product.Product `json:"data"`
+		Status string    `json:"status"`
+		Code   int       `json:"code"`
+		Data   user.User `json:"data"`
 	}
 
 	err = json.Unmarshal(resp.Body.Bytes(), &response)
@@ -46,15 +46,15 @@ func TestCreateProducts_Success(t *testing.T) {
 
 	require.Equal(t, "success", response.Status)
 
-	productId = response.Data.ID
+	userId = response.Data.ID
 }
 
-func TestGetAllProducts_Success(t *testing.T) {
+func TestGetAllUsers_Success(t *testing.T) {
 	SetupTest()
 
-	req, err := http.NewRequest("GET", "/products", bytes.NewBuffer(nil))
+	req, err := http.NewRequest("GET", "/users", bytes.NewBuffer(nil))
 	if err != nil {
-		t.Fatal("Failed test create product")
+		t.Fatal("Failed test create user")
 	}
 
 	req.Header.Set("Content-Type", "application/json")
@@ -66,9 +66,9 @@ func TestGetAllProducts_Success(t *testing.T) {
 	require.Equal(t, http.StatusOK, resp.Code)
 
 	var response struct {
-		Status string            `json:"status"`
-		Code   int               `json:"code"`
-		Data   []product.Product `json:"data"`
+		Status string      `json:"status"`
+		Code   int         `json:"code"`
+		Data   []user.User `json:"data"`
 	}
 
 	err = json.Unmarshal(resp.Body.Bytes(), &response)
@@ -77,12 +77,12 @@ func TestGetAllProducts_Success(t *testing.T) {
 	require.Equal(t, "success", response.Status)
 }
 
-func TestGetDetailProducts_Success(t *testing.T) {
+func TestGetDetailUsers_Success(t *testing.T) {
 	SetupTest()
 
-	req, err := http.NewRequest("GET", "/products/"+productId, bytes.NewBuffer(nil))
+	req, err := http.NewRequest("GET", "/users/"+userId, bytes.NewBuffer(nil))
 	if err != nil {
-		t.Fatal("Failed test create product")
+		t.Fatal("Failed test create user")
 	}
 
 	req.Header.Set("Content-Type", "application/json")
@@ -94,9 +94,9 @@ func TestGetDetailProducts_Success(t *testing.T) {
 	require.Equal(t, http.StatusOK, resp.Code)
 
 	var response struct {
-		Status string          `json:"status"`
-		Code   int             `json:"code"`
-		Data   product.Product `json:"data"`
+		Status string    `json:"status"`
+		Code   int       `json:"code"`
+		Data   user.User `json:"data"`
 	}
 
 	err = json.Unmarshal(resp.Body.Bytes(), &response)
@@ -105,18 +105,17 @@ func TestGetDetailProducts_Success(t *testing.T) {
 	require.Equal(t, "success", response.Status)
 }
 
-func TestEditProducts_Success(t *testing.T) {
+func TestEditUsers_Success(t *testing.T) {
 	SetupTest()
 
 	request := []byte(`{
-      "name": "Burjo",
-      "price": 4000,
-      "stock": 40
-	}`)
-
-	req, err := http.NewRequest("PUT", "/products/"+productId, bytes.NewBuffer(request))
+		"name": "Ade Farhan Edit",
+		"phoneNumber": "1111111111",
+		"address": "sumatera"
+	  }`)
+	req, err := http.NewRequest("PUT", "/users/"+userId, bytes.NewBuffer(request))
 	if err != nil {
-		t.Fatal("Failed test update product")
+		t.Fatal("Failed test update user")
 	}
 
 	req.Header.Set("Content-Type", "application/json")
@@ -128,9 +127,9 @@ func TestEditProducts_Success(t *testing.T) {
 	require.Equal(t, http.StatusOK, resp.Code)
 
 	var response struct {
-		Status string          `json:"status"`
-		Code   int             `json:"code"`
-		Data   product.Product `json:"data"`
+		Status string    `json:"status"`
+		Code   int       `json:"code"`
+		Data   user.User `json:"data"`
 	}
 
 	err = json.Unmarshal(resp.Body.Bytes(), &response)
@@ -139,8 +138,8 @@ func TestEditProducts_Success(t *testing.T) {
 	require.Equal(t, "success", response.Status)
 }
 
-func TestDeleteProducts_Success(t *testing.T) {
-	req, err := http.NewRequest("DELETE", "/products/"+productId, bytes.NewBuffer(nil))
+func TestDeleteUsers_Success(t *testing.T) {
+	req, err := http.NewRequest("DELETE", "/users/"+userId, bytes.NewBuffer(nil))
 	if err != nil {
 		t.Fatal("Failed test create product")
 	}
@@ -154,9 +153,9 @@ func TestDeleteProducts_Success(t *testing.T) {
 	require.Equal(t, http.StatusOK, resp.Code)
 
 	var response struct {
-		Status string          `json:"status"`
-		Code   int             `json:"code"`
-		Data   product.Product `json:"data"`
+		Status string    `json:"status"`
+		Code   int       `json:"code"`
+		Data   user.User `json:"data"`
 	}
 
 	err = json.Unmarshal(resp.Body.Bytes(), &response)

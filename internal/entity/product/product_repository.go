@@ -9,7 +9,6 @@ type ProductRepository interface {
 	GetProduct(productId string) (Product, error)
 	CreateProduct(product Product) error
 	SaveProduct(product Product) error
-	HardDeleteProduct(product Product) error
 }
 
 type GormProductRepository struct {
@@ -23,7 +22,7 @@ func NewProductRepository(db *gorm.DB) *GormProductRepository {
 func (g *GormProductRepository) GetProducts() ([]Product, error) {
 	var products []Product
 
-	result := g.db.Where("deleted_at IS NULL").Find(&products).Order("name desc")
+	result := g.db.Where("deleted_at IS NULL").Find(&products).Order("created_at desc")
 
 	if result.Error != nil {
 		return products, result.Error
@@ -56,16 +55,6 @@ func (g *GormProductRepository) CreateProduct(product Product) error {
 
 func (g *GormProductRepository) SaveProduct(product Product) error {
 	result := g.db.Save(&product)
-
-	if result.Error != nil {
-		return result.Error
-	}
-
-	return nil
-}
-
-func (g *GormProductRepository) HardDeleteProduct(product Product) error {
-	result := g.db.Delete(&product)
 
 	if result.Error != nil {
 		return result.Error

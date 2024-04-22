@@ -56,7 +56,7 @@ func (uc *ProductUseCase) UpdateProduct(productId string, request product.Produc
 	}
 
 	if product.ID == "" {
-		log.Printf("Product with id %s not found", request.ID)
+		log.Printf("Product with id %s not found", productId)
 		return product, errors.New("product not found")
 	}
 
