@@ -7,6 +7,8 @@ import (
 
 	"github.com/adefarhan/warmindo-be/internal/delivery/http"
 	"github.com/adefarhan/warmindo-be/internal/entity/customer"
+	"github.com/adefarhan/warmindo-be/internal/entity/order"
+	orderdetail "github.com/adefarhan/warmindo-be/internal/entity/order_detail"
 	"github.com/adefarhan/warmindo-be/internal/entity/product"
 	"github.com/adefarhan/warmindo-be/internal/usecase"
 	"github.com/gin-gonic/gin"
@@ -16,7 +18,7 @@ import (
 )
 
 func main() {
-	err := godotenv.Load()
+	err := godotenv.Load("../../.env")
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
@@ -29,7 +31,7 @@ func main() {
 	}
 
 	// Migrate model ke database
-	db.AutoMigrate(&product.Product{}, &customer.Customer{})
+	db.AutoMigrate(&product.Product{}, &customer.Customer{}, &order.Order{}, &orderdetail.OrderDetail{})
 
 	// Inisialisasi router Gin
 	router := gin.Default()
@@ -43,6 +45,14 @@ func main() {
 	customerUseCase := usecase.NewCustomerUseCase(customerRepo)
 	customerHandler := http.NewCustomerHandler(customerUseCase)
 
+	orderRepo := order.NewOrderRepository(db)
+	orderUseCase := usecase.NewOrderUseCase(orderRepo, customerRepo)
+	orderHandler := http.NewOrderHandler(orderUseCase)
+
+	orderDetailRepo := orderdetail.NewOrderDetailRepository(db)
+	orderDetailUseCase := usecase.NewOrderDetailUseCase(orderDetailRepo, productRepo, orderRepo)
+	orderDetailHandler := http.NewOrderDetailHandler(orderDetailUseCase)
+
 	// Routes
 	router.POST("/products", productHandler.CreateProduct)
 	router.GET("/products", productHandler.GetProducts)
@@ -55,6 +65,10 @@ func main() {
 	router.GET("customers/:customerId", customerHandler.GetCustomer)
 	router.PUT("/customers/:customerId", customerHandler.UpdateCustomer)
 	router.DELETE("/customers/:customerId", customerHandler.DeleteCustomer)
+
+	router.POST("orders", orderHandler.CreateOrder)
+
+	router.POST("/orders-detail/:orderId", orderDetailHandler.CreateOrderDetail)
 
 	// Mulai server
 	router.Run(":8080")
