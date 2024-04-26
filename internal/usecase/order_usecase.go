@@ -43,3 +43,48 @@ func (uc *OrderUseCase) CreateOrder(order order.Order) (order.Order, error) {
 
 	return order, nil
 }
+
+func (uc *OrderUseCase) GetOrders() ([]order.Order, error) {
+	orders, err := uc.repository.GetOrders()
+	if err != nil {
+		return orders, err
+	}
+
+	return orders, nil
+}
+
+func (uc *OrderUseCase) GetOrder(orderId string) (order.Order, error) {
+	order, err := uc.repository.GetOrder(orderId)
+
+	if err != nil {
+		log.Printf("Failed to get order: %s", err.Error())
+		return order, err
+	}
+
+	return order, nil
+}
+
+func (uc *OrderUseCase) FinishOrder(orderId string) (order.Order, error) {
+	order, err := uc.repository.GetOrder(orderId)
+	if err != nil {
+		log.Printf("Failed to get order: %s", err.Error())
+		return order, err
+	}
+
+	if order.ID == "" {
+		log.Printf("order not found: %s", orderId)
+		return order, err
+	}
+
+	order.Status = "Completed"
+	timeNow := time.Now()
+	order.UpdatedAt = &timeNow
+
+	err = uc.repository.SaveOrder(order)
+	if err != nil {
+		log.Printf("Failed to save order: %s", err.Error())
+		return order, err
+	}
+
+	return order, nil
+}

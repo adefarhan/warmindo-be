@@ -41,3 +41,59 @@ func (u *OrderHandler) CreateOrder(c *gin.Context) {
 
 	c.JSON(http.StatusCreated, successResponse)
 }
+
+func (u *OrderHandler) GetOrders(c *gin.Context) {
+	orders, err := u.useCase.GetOrders()
+	if err != nil {
+		errorResponse := response.NewErrorResponse(http.StatusInternalServerError, err.Error())
+		c.JSON(http.StatusInternalServerError, errorResponse)
+		return
+	}
+
+	successResponse := response.NewSuccessResponse(http.StatusOK, orders)
+
+	c.JSON(http.StatusOK, successResponse)
+}
+
+func (u *OrderHandler) GetOrder(c *gin.Context) {
+	orderId := c.Param("orderId")
+
+	order, err := u.useCase.GetOrder(orderId)
+	if err != nil {
+		errorResponse := response.NewErrorResponse(http.StatusInternalServerError, err.Error())
+		c.JSON(http.StatusInternalServerError, errorResponse)
+		return
+	}
+
+	var successResponse response.Response
+
+	if order.ID == "" {
+		successResponse = response.NewSuccessResponse(http.StatusOK, nil)
+		c.JSON(http.StatusOK, successResponse)
+		return
+	}
+
+	successResponse = response.NewSuccessResponse(http.StatusOK, order)
+
+	c.JSON(http.StatusOK, successResponse)
+}
+
+func (u *OrderHandler) FinishOrder(c *gin.Context) {
+	orderId := c.Param("orderId")
+
+	order, err := u.useCase.FinishOrder(orderId)
+	if err != nil {
+		if err.Error() == "order not found" {
+			errorResponse := response.NewErrorResponse(http.StatusNotFound, err.Error())
+			c.JSON(http.StatusNotFound, errorResponse)
+			return
+		}
+		errorResponse := response.NewErrorResponse(http.StatusInternalServerError, err.Error())
+		c.JSON(http.StatusInternalServerError, errorResponse)
+		return
+	}
+
+	successResponse := response.NewSuccessResponse(http.StatusOK, order)
+
+	c.JSON(http.StatusOK, successResponse)
+}
