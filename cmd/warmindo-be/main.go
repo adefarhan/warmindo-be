@@ -12,6 +12,7 @@ import (
 	"github.com/adefarhan/warmindo-be/internal/entity/product"
 	"github.com/adefarhan/warmindo-be/internal/entity/transaction"
 	"github.com/adefarhan/warmindo-be/internal/usecase"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
@@ -36,6 +37,8 @@ func main() {
 
 	// Inisialisasi router Gin
 	router := gin.Default()
+
+	router.Use(cors.Default())
 
 	// Buat instance handler produk dengan dependensi repository yang diinisialisasi dengan DB
 	productRepo := product.NewProductRepository(db)
